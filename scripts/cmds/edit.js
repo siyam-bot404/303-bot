@@ -6,7 +6,7 @@ const path = require("path");
 module.exports.config = {
   name: "edit",
   version: "1.0.0",
-  hasPermission: 2,
+  hasPermission: 0,
   credits: "🔰𝐑𝐀𝐇𝐀𝐓 𝐈𝐒𝐋𝐀𝐌🔰",
   description: "AI image editor",
   commandCategory: "image",
