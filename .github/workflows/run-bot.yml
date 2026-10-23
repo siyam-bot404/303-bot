@@ -1,10 +1,14 @@
-name: Node.js CI
+name: Node.js CI 24/7 Uptime
 
 on:
   push:
-    branches: [main]
+    branches: [ "main", "master" ]
   pull_request:
-    branches: [main]
+    branches: [ "main", "master" ]
+  schedule:
+    # প্রতি ৫ ঘণ্টা পরপর অটোমেটিক রিস্টার্ট হবে যেন Actions-এর ৬ ঘণ্টার লিমিটে বট বন্ধ না হয়
+    - cron: "0 */5 * * *"
+  workflow_dispatch:
 
 jobs:
   build:
@@ -13,24 +17,26 @@ jobs:
     strategy:
       matrix:
         node-version: [20.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
-    # Step to check out the repository code
-    - uses: actions/checkout@v2
+    - name: Check out repository code
+      uses: actions/checkout@v4
 
-    # Step to set up the specified Node.js version
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
 
-    # Step to install dependencies
     - name: Install dependencies
       run: npm install
 
-    # Step to run the bot with the correct port
-    - name: Start the bot
+    - name: Run bot with Auto-Restart & 24/7 Loop
       env:
         PORT: 8080
-      run: npm start
+      run: |
+        echo "🚀 Starting 24/7 Telegram/Messenger Bot..."
+        # বট কোনো কারণে ক্র্যাশ করলে বা বন্ধ হয়ে গেলে এই লুপ ৫ সেকেন্ড পর পর অটোমেটিক রিস্টার্ট করবে
+        until npm start; do
+          echo "⚠️ Bot crashed with exit code $?. Restarting in 5 seconds..." >&2
+          sleep 5
+        done
